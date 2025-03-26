@@ -144,7 +144,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 p-24">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 -mb-24">
       <Card className="w-[400px] border-white/20 bg-white/10">
         <CardHeader>
           <CardTitle className="text-white">Student Attendance</CardTitle>
