@@ -6,7 +6,7 @@ import { RootLayoutContent } from '@/components/common/root-layout-content';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CPC Student Attendance',
+  title: 'EZAttendance by Ariel Batoon',
   description: 'Student Attendance System',
 };
 
