@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     await db.insert(attendance_records).values({
       student_id: studentId,
-      date: now,
+      date: now.toISOString(),
       status: 'present',
     });
 
