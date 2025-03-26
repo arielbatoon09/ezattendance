@@ -66,7 +66,7 @@ export default function Home() {
         return;
       }
 
-      setStudentInfo(findResult.student);
+      setStudentInfo(findResult.student ? findResult.student : null);
       setMessage({ type: 'success', text: 'Student found successfully' });
     } catch {
       setMessage({
