@@ -66,7 +66,10 @@ export default function Home() {
         return;
       }
 
-      setStudentInfo(findResult.student ? findResult.student : null);
+      setStudentInfo(findResult.student ? {
+        ...findResult.student,
+        id: findResult.student.id.toString()
+      } : null);
       setMessage({ type: 'success', text: 'Student found successfully' });
     } catch {
       setMessage({
