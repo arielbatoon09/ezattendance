@@ -17,16 +17,22 @@ type StudentInfo = {
   id: string;
   first_name: string;
   last_name: string;
-  middle_initial?: string;
+  middle_initial: string;
   section: string;
-  email?: string;
+  email: string;
+};
+
+type Message = {
+  type: 'success' | 'error';
+  text: string;
 };
 
 export default function Home() {
   const { register, handleSubmit, reset } = useForm<FormData>();
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [studentId, setStudentId] = useState('');
   const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<Message | null>(null);
   const [isAttendanceEnabled, setIsAttendanceEnabled] = useState<boolean | null>(null);
 
   // Check if attendance system is enabled
@@ -66,20 +72,24 @@ export default function Home() {
         return;
       }
 
-      setStudentInfo(findResult.student ? {
-        ...findResult.student,
+      if (!findResult.student) {
+        setMessage({ type: 'error', text: 'Student not found' });
+        return;
+      }
+
+      setStudentInfo({
         id: findResult.student.id.toString(),
         first_name: findResult.student.first_name ?? '',
         last_name: findResult.student.last_name ?? '',
         middle_initial: findResult.student.middle_initial ?? '',
         section: findResult.student.section ?? '',
         email: findResult.student.email ?? ''
-      } : null);
+      });
       setMessage({ type: 'success', text: 'Student found successfully' });
     } catch {
       setMessage({
         type: 'error',
-        text: 'Failed to find student. Please try again.',
+        text: 'An error occurred while finding the student'
       });
       setStudentInfo(null);
     } finally {
@@ -108,7 +118,7 @@ export default function Home() {
     } catch {
       setMessage({
         type: 'error',
-        text: 'Failed to mark attendance. Please try again.',
+        text: 'An error occurred while marking attendance'
       });
     } finally {
       setIsLoading(false);
@@ -160,7 +170,9 @@ export default function Home() {
                   type="text"
                   placeholder="Enter your student ID"
                   className="border-white/20 bg-white/10 text-white placeholder:text-white/40"
-                  disabled={isLoading || studentInfo}
+                  disabled={isLoading || studentInfo !== null}
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
                 />
               </div>
 
