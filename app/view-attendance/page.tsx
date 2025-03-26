@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CalendarIcon, Power } from 'lucide-react';
+import { CalendarIcon, Power, Search } from 'lucide-react';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
@@ -21,13 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
 export default function ViewAttendance() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSection, setSelectedSection] = useState<string>('BSIT 1E');
+  const [selectedSection, setSelectedSection] = useState<string>('BSIT 1A');
   const [attendanceDates, setAttendanceDates] = useState<string[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,9 @@ export default function ViewAttendance() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'present' | 'absent'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Add this state after your other state declarations
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch attendance records
   const fetchAttendance = useCallback(async () => {
@@ -143,15 +147,29 @@ export default function ViewAttendance() {
     }
   };
 
-  // Filter and pagination logic
+  // Update the filtering logic to include search
   const filteredRecords = attendanceRecords
-    .slice() // Create a copy to avoid mutating the original array
+    .slice()
     .filter((record) => {
-      if (statusFilter === 'all') return true;
-      return record.status === statusFilter;
+      // First apply status filter
+      if (statusFilter !== 'all' && record.status !== statusFilter) {
+        return false;
+      }
+
+      // Then apply search filter if there's a search query
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          record.student.id.toLowerCase().includes(query) ||
+          record.student.first_name.toLowerCase().includes(query) ||
+          record.student.last_name.toLowerCase().includes(query) ||
+          record.student.section.toLowerCase().includes(query)
+        );
+      }
+
+      return true;
     })
     .sort((a, b) => {
-      // Sort by last name
       const lastNameA = (a.student.last_name || '').toLowerCase();
       const lastNameB = (b.student.last_name || '').toLowerCase();
       return lastNameA.localeCompare(lastNameB);
@@ -227,20 +245,36 @@ export default function ViewAttendance() {
           <div className="flex flex-col space-y-6">
             {/* Controls */}
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="mb-2 text-lg font-semibold text-white">Section</h2>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
-                  <SelectTrigger className="w-[240px] border-white/20 bg-white/10 text-white">
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BSIT 1A">Section BSIT 1A</SelectItem>
-                    <SelectItem value="BSIT 1B">Section BSIT 1B</SelectItem>
-                    <SelectItem value="BSIT 1C">Section BSIT 1C</SelectItem>
-                    <SelectItem value="BSIT 1D">Section BSIT 1D</SelectItem>
-                    <SelectItem value="BSIT 1E">Section BSIT 1E</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-4">
+                <div>
+                  <h2 className="mb-2 text-lg font-semibold text-white">Section</h2>
+                  <Select value={selectedSection} onValueChange={setSelectedSection}>
+                    <SelectTrigger className="w-[240px] border-white/20 bg-white/10 text-white">
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BSIT 1A">BSIT 1A</SelectItem>
+                      <SelectItem value="BSIT 1B">BSIT 1B</SelectItem>
+                      <SelectItem value="BSIT 1C">BSIT 1C</SelectItem>
+                      <SelectItem value="BSIT 1D">BSIT 1D</SelectItem>
+                      <SelectItem value="BSIT 1E">BSIT 1E</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <h2 className="mb-2 text-lg font-semibold text-white">Search</h2>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                    <Input
+                      type="text"
+                      placeholder="Search by ID, name, or section..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-[300px] border-white/20 bg-white/10 pl-9 text-white placeholder:text-white/40 h-10"
+                    />
+                  </div>
+                </div>
               </div>
 
               {hasRecords && (
