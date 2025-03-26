@@ -37,9 +37,8 @@ export async function findStudent(studentId: string) {
 
 export async function markAttendance(studentId: string) {
   try {
-    // Start a transaction to ensure data consistency
     return await db.transaction(async (tx) => {
-      // First check if student exists
+      // heck if student exists
       const student = await tx.query.students.findFirst({
         where: eq(students.id, parseInt(studentId, 10)),
       });

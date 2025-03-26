@@ -10,10 +10,13 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -32,6 +35,8 @@ export default function Login() {
     } catch (error) {
       console.error('Error logging in:', error);
       setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,8 +85,8 @@ export default function Login() {
             <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400">{error}</div>
           )}
 
-          <Button size="lg" type="submit" className="w-full">
-            Login
+          <Button size="lg" type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
       </div>

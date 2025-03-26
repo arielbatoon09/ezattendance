@@ -27,7 +27,7 @@ const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 export default function ViewAttendance() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSection, setSelectedSection] = useState<string>('BSIT 1A');
+  const [selectedSection, setSelectedSection] = useState<string>('BSIT 1E');
   const [attendanceDates, setAttendanceDates] = useState<string[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +39,25 @@ export default function ViewAttendance() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'present' | 'absent'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Fetch attendance records
+  const fetchAttendance = async () => {
+    if (!selectedDate || !selectedSection) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/attendance?section=${encodeURIComponent(selectedSection)}&date=${selectedDate}`
+      );
+      const data = await response.json();
+      setAttendanceRecords(data.records);
+      setHasRecords(data.hasRecords);
+    } catch (error) {
+      console.error('Error fetching attendance:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch available attendance dates
   useEffect(() => {
@@ -64,24 +83,6 @@ export default function ViewAttendance() {
 
   // Fetch attendance records when date or section changes
   useEffect(() => {
-    const fetchAttendance = async () => {
-      if (!selectedDate || !selectedSection) return;
-
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/attendance?section=${encodeURIComponent(selectedSection)}&date=${selectedDate}`
-        );
-        const data = await response.json();
-        setAttendanceRecords(data.records);
-        setHasRecords(data.hasRecords);
-      } catch (error) {
-        console.error('Error fetching attendance:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAttendance();
   }, [selectedDate, selectedSection]);
 
@@ -181,11 +182,10 @@ export default function ViewAttendance() {
             size="sm"
             onClick={handleAttendanceToggle}
             disabled={isToggling}
-            className={`gap-2 ${
-              isAttendanceEnabled
+            className={`gap-2 ${isAttendanceEnabled
                 ? 'bg-green-500 hover:bg-green-600'
                 : 'bg-red-500 hover:bg-red-600'
-            }`}
+              }`}
           >
             <Power className="h-4 w-4" />
             {isAttendanceEnabled ? 'Enabled' : 'Disabled'}
@@ -207,11 +207,10 @@ export default function ViewAttendance() {
                   <Button
                     key={date}
                     variant="outline"
-                    className={`w-full justify-start text-left font-normal ${
-                      selectedDate === date
+                    className={`w-full justify-start text-left font-normal ${selectedDate === date
                         ? 'border-white/80 bg-white/75 text-black hover:bg-white/90'
                         : 'border-white/20 bg-white/10 text-white hover:bg-white/20'
-                    }`}
+                      }`}
                     onClick={() => setSelectedDate(date)}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -245,7 +244,21 @@ export default function ViewAttendance() {
               </div>
 
               {hasRecords && (
-                <div className="flex items-center gap-4">
+                <div className="flex justify-center items-center gap-4">
+                  <div className="mt-7">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setLoading(true);
+                        fetchAttendance();
+                      }}
+                      disabled={loading}
+                      className="border-white/20 bg-white/10 text-white hover:bg-white/20"
+                    >
+                      Refresh
+                    </Button>
+                  </div>
                   <div>
                     <h2 className="mb-2 text-sm font-semibold text-white">Status Filter</h2>
                     <Select
@@ -346,11 +359,10 @@ export default function ViewAttendance() {
                           <TableCell className="text-white">{record.student.section}</TableCell>
                           <TableCell className="text-right">
                             <span
-                              className={`rounded-full px-2 py-1 text-xs ${
-                                record.status === 'present'
+                              className={`rounded-full px-2 py-1 text-xs ${record.status === 'present'
                                   ? 'bg-green-500/20 text-green-400'
                                   : 'bg-red-500/20 text-red-400'
-                              }`}
+                                }`}
                             >
                               {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                             </span>

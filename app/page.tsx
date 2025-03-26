@@ -149,7 +149,7 @@ export default function Home() {
                   type="text"
                   placeholder="Enter your student ID"
                   className="border-white/20 bg-white/10 text-white placeholder:text-white/40"
-                  disabled={isLoading}
+                  disabled={isLoading || studentInfo}
                 />
               </div>
 
