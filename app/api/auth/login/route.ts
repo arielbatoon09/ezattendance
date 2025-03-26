@@ -10,7 +10,8 @@ export async function POST(request: Request) {
 
     if (username === validUsername && password === validPassword) {
       // Set a session cookie
-      cookies().set('admin_session', 'true', {
+      const cookieStore = await cookies();
+      cookieStore.set('admin_session', 'true', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
