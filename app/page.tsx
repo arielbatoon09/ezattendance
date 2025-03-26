@@ -99,7 +99,10 @@ export default function Home() {
         return;
       }
 
-      setMessage({ type: 'success', text: markResult.success });
+      setMessage({ 
+        type: 'success', 
+        text: markResult.success ?? 'Attendance marked successfully' 
+      });
       reset();
       setStudentInfo(null);
     } catch {
