@@ -1,103 +1,231 @@
-import Image from "next/image";
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { markAttendance, findStudent } from './action';
+import { useState, useEffect } from 'react';
+import { AlertCircle, Search, UserCheck } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+
+type FormData = {
+  studentId: string;
+};
+
+type StudentInfo = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  middle_initial?: string;
+  section: string;
+  email?: string;
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { register, handleSubmit, reset } = useForm<FormData>();
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAttendanceEnabled, setIsAttendanceEnabled] = useState<boolean | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  // Check if attendance system is enabled
+  useEffect(() => {
+    const checkAttendanceStatus = async () => {
+      try {
+        const response = await fetch('/api/attendance/control');
+        const data = await response.json();
+        setIsAttendanceEnabled(data.isEnabled);
+      } catch {
+        console.error('Error checking attendance status');
+        setIsAttendanceEnabled(false);
+      }
+    };
+
+    checkAttendanceStatus();
+  }, []);
+
+  const handleFindStudent = async (data: FormData) => {
+    if (!isAttendanceEnabled) {
+      setMessage({
+        type: 'error',
+        text: 'Attendance system is currently disabled',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const findResult = await findStudent(data.studentId);
+
+      if (findResult.error) {
+        setMessage({ type: 'error', text: findResult.error });
+        setStudentInfo(null);
+        return;
+      }
+
+      setStudentInfo(findResult.student);
+      setMessage({ type: 'success', text: 'Student found successfully' });
+    } catch {
+      setMessage({
+        type: 'error',
+        text: 'Failed to find student. Please try again.',
+      });
+      setStudentInfo(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMarkAttendance = async () => {
+    if (!studentInfo) return;
+
+    setIsLoading(true);
+    try {
+      const markResult = await markAttendance(studentInfo.id);
+
+      if (markResult.error) {
+        setMessage({ type: 'error', text: markResult.error });
+        return;
+      }
+
+      setMessage({ type: 'success', text: markResult.success });
+      reset();
+      setStudentInfo(null);
+    } catch {
+      setMessage({
+        type: 'error',
+        text: 'Failed to mark attendance. Please try again.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    reset();
+    setMessage(null);
+    setStudentInfo(null);
+  };
+
+  if (isAttendanceEnabled === null) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 p-24">
+        <Card className="w-[400px] border-white/20 bg-white/10">
+          <CardHeader>
+            <CardTitle className="text-white">Loading...</CardTitle>
+          </CardHeader>
+        </Card>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    );
+  }
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 p-24">
+      <Card className="w-[400px] border-white/20 bg-white/10">
+        <CardHeader>
+          <CardTitle className="text-white">Student Attendance</CardTitle>
+          <CardDescription className="text-white/60">
+            Enter your student ID to mark your attendance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!isAttendanceEnabled ? (
+            <div className="flex items-center gap-2 rounded-lg bg-red-500/20 p-4 text-red-400">
+              <AlertCircle className="h-5 w-5" />
+              <p>Attendance system is currently disabled</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(handleFindStudent)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="studentId" className="text-white">
+                  Student ID
+                </Label>
+                <Input
+                  id="studentId"
+                  {...register('studentId', { required: true })}
+                  type="text"
+                  placeholder="Enter your student ID"
+                  className="border-white/20 bg-white/10 text-white placeholder:text-white/40"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                {!studentInfo ? (
+                  <Button
+                    type="submit"
+                    className="w-full bg-blue-500 hover:bg-blue-600"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      'Finding...'
+                    ) : (
+                      <>
+                        <Search className="mr-2 h-4 w-4" />
+                        Find Student
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      onClick={handleMarkAttendance}
+                      className="w-full bg-green-500 hover:bg-green-600"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        'Processing...'
+                      ) : (
+                        <>
+                          <UserCheck className="mr-2 h-4 w-4" />
+                          Mark as Present
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleReset}
+                      className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      disabled={isLoading}
+                    >
+                      Reset
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {message && (
+                <div
+                  className={`rounded-lg p-4 ${
+                    message.type === 'success'
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-red-500/20 text-red-400'
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+
+              {studentInfo && (
+                <div className="mt-4 rounded-lg bg-white/10 p-4">
+                  <h3 className="mb-2 font-semibold text-white">Student Information</h3>
+                  <p className="text-white/80">
+                    Name: {studentInfo.first_name} {studentInfo.middle_initial}{' '}
+                    {studentInfo.last_name}
+                  </p>
+                  <p className="text-white/80">Section: {studentInfo.section}</p>
+                </div>
+              )}
+            </form>
+          )}
+        </CardContent>
+      </Card>
+    </main>
   );
 }

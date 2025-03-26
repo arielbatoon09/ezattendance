@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EZAttendance
+
+A modern web-based student attendance system built with Next.js 14 and DrizzleORM.
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Database:** PostgreSQL
+- **ORM:** DrizzleORM
+- **Authentication:** Next-Auth
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui
+- **Form Handling:** React Hook Form
+- **Development Tools:**
+  - TypeScript
+  - ESLint
+  - Prettier
+  - Husky (Git Hooks)
+
+## Prerequisites
+
+- Node.js 18+ 
+- PostgreSQL
+- pnpm (recommended) or npm
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repository**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd ezattendance
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Install dependencies**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Set up environment variables**
 
-## Learn More
+Create a `.env` file in the root directory with the following variables:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://user:password@localhost:5432/ezattendance"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Next Auth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Admin Credentials (for dashboard access)
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD="your-secure-password"
+```
 
-## Deploy on Vercel
+4. **Initialize the database**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Push the schema to your database
+pnpm db:push
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Generate migrations (if needed)
+pnpm db:generate
+
+# Run migrations
+pnpm db:migrate
+```
+
+5. **Start the development server**
+
+```bash
+pnpm dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
+
+## Available Scripts
+
+```bash
+# Development
+pnpm dev         # Start development server
+pnpm build       # Build for production
+pnpm start       # Start production server
+
+# Database
+pnpm db:push     # Push schema changes to database
+pnpm db:generate # Generate migrations
+pnpm db:migrate  # Run migrations
+pnpm db:studio   # Open Drizzle Studio
+
+# Code Quality
+pnpm lint       # Run ESLint
+pnpm format     # Format code with Prettier
+pnpm type-check # Run TypeScript compiler check
+
+# Git Hooks
+pnpm prepare    # Install Husky git hooks
+```
+
+## Project Structure
+
+```
+ezattendance/
+├── app/                   # Next.js app router files
+│   ├── api/              # API routes
+│   ├── view-attendance/  # Admin dashboard
+│   └── page.tsx         # Main attendance page
+├── components/           # Reusable components
+├── lib/                  # Utility functions
+│   └── db/              # Database configuration
+│       ├── migrations/  # DrizzleORM migrations
+│       └── schema.ts   # Database schema
+└── types/               # TypeScript type definitions
+```
+
+## Features
+
+- **Student Check-in:** Quick and easy attendance marking
+- **Admin Dashboard:** View and manage attendance records
+- **Section Management:** Organize students by sections
+- **Attendance Control:** Enable/disable attendance system
+- **Dark Theme:** Modern and eye-friendly design
+- **Responsive UI:** Works on desktop and mobile devices
+
+## Development Guidelines
+
+1. **Code Style**
+   - Use TypeScript for type safety
+   - Follow ESLint rules
+   - Format code using Prettier
+   - Write meaningful commit messages
+
+2. **Database Changes**
+   - Update schema in `lib/db/schema.ts`
+   - Generate migrations using `pnpm db:generate`
+   - Test migrations locally before pushing
+
+3. **Testing Changes**
+   - Run type checking: `pnpm type-check`
+   - Run linter: `pnpm lint`
+   - Format code: `pnpm format`
+   - Test all features manually
+
+## Contributing
+
+1. Create a new branch for your feature
+2. Make your changes
+3. Run all checks (type-check, lint, format)
+4. Submit a pull request
+
+## License
+
+MIT License - feel free to use this project for your own purposes.
