@@ -1,27 +1,22 @@
 # EZAttendance
 
-A modern web-based student attendance system built with Next.js 14 and DrizzleORM.
+A modern web-based student attendance system built with Next.js 15 and Supabase with DrizzleORM.
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Database:** PostgreSQL
+- **Framework:** Next.js 15 (App Router)
+- **Database:** Supabase (PostgreSQL)
 - **ORM:** DrizzleORM
-- **Authentication:** Next-Auth
+- **Authentication:** Custom Approach
 - **Styling:** Tailwind CSS
 - **UI Components:** shadcn/ui
 - **Form Handling:** React Hook Form
-- **Development Tools:**
-  - TypeScript
-  - ESLint
-  - Prettier
-  - Husky (Git Hooks)
 
 ## Prerequisites
 
 - Node.js 18+ 
 - PostgreSQL
-- pnpm (recommended) or npm
+- npm (recommended) or npm
 
 ## Getting Started
 
@@ -35,7 +30,7 @@ cd ezattendance
 2. **Install dependencies**
 
 ```bash
-pnpm install
+npm install
 ```
 
 3. **Set up environment variables**
@@ -44,7 +39,7 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 # Database (PostgreSQL)
-DATABASE_URL="postgresql://user:password@localhost:5432/ezattendance"
+DATABASE_URL="postgresql://user:password@localhost:5432/[yourdbname]"
 
 # Next Auth
 NEXTAUTH_URL="http://localhost:3000"
@@ -55,49 +50,33 @@ ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="your-secure-password"
 ```
 
-4. **Initialize the database**
+4. **Database Setup and Development**
 
 ```bash
-# Push the schema to your database
-pnpm db:push
+# Development
+npm dev              # Start development server with turbopack
+npm build            # Build for production
+npm start            # Start production server
 
-# Generate migrations (if needed)
-pnpm db:generate
+# Database Management (Drizzle)
+npm db:generate      # Generate migrations
+npm db:migrate       # Apply migrations
+npm db:push         # Push schema changes
+npm db:studio       # Open Drizzle Studio
 
-# Run migrations
-pnpm db:migrate
+# Code Quality
+npm lint            # Run ESLint
+npm format          # Format code with Prettier
+npm format:check    # Check code formatting
 ```
 
 5. **Start the development server**
 
 ```bash
-pnpm dev
+npm dev
 ```
 
 The application will be available at [http://localhost:3000](http://localhost:3000).
-
-## Available Scripts
-
-```bash
-# Development
-pnpm dev         # Start development server
-pnpm build       # Build for production
-pnpm start       # Start production server
-
-# Database
-pnpm db:push     # Push schema changes to database
-pnpm db:generate # Generate migrations
-pnpm db:migrate  # Run migrations
-pnpm db:studio   # Open Drizzle Studio
-
-# Code Quality
-pnpm lint       # Run ESLint
-pnpm format     # Format code with Prettier
-pnpm type-check # Run TypeScript compiler check
-
-# Git Hooks
-pnpm prepare    # Install Husky git hooks
-```
 
 ## Project Structure
 
@@ -126,28 +105,47 @@ ezattendance/
 
 ## Development Guidelines
 
-1. **Code Style**
-   - Use TypeScript for type safety
-   - Follow ESLint rules
-   - Format code using Prettier
-   - Write meaningful commit messages
+1. **Code Style and Quality**
+   ```bash
+   # Format your code
+   npm format
 
-2. **Database Changes**
-   - Update schema in `lib/db/schema.ts`
-   - Generate migrations using `pnpm db:generate`
-   - Test migrations locally before pushing
+   # Check code formatting
+   npm format:check
+
+   # Run linter
+   npm lint
+   ```
+
+2. **Database Management**
+   ```bash
+   # Generate new migration after schema changes
+   npm db:generate
+
+   # Apply migrations
+   npm db:migrate
+
+   # Push schema changes directly
+   npm db:push
+
+   # Open Drizzle Studio for database management
+   npm db:studio
+   ```
 
 3. **Testing Changes**
-   - Run type checking: `pnpm type-check`
-   - Run linter: `pnpm lint`
-   - Format code: `pnpm format`
-   - Test all features manually
+   - Test all features manually after changes
+   - Ensure all code quality checks pass
+   - Verify database migrations work correctly
 
 ## Contributing
 
 1. Create a new branch for your feature
 2. Make your changes
-3. Run all checks (type-check, lint, format)
+3. Run all checks:
+   ```bash
+   npm lint
+   npm format:check
+   ```
 4. Submit a pull request
 
 ## License
