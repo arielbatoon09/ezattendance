@@ -11,7 +11,7 @@ import {
 import { CalendarIcon, Power } from 'lucide-react';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { AttendanceData } from '@/types';
 import {
   Table,
@@ -41,7 +41,7 @@ export default function ViewAttendance() {
   const [pageSize, setPageSize] = useState(10);
 
   // Fetch attendance records
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     if (!selectedDate || !selectedSection) return;
 
     setLoading(true);
@@ -57,7 +57,7 @@ export default function ViewAttendance() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate, selectedSection]);
 
   // Fetch available attendance dates
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function ViewAttendance() {
   // Fetch attendance records when date or section changes
   useEffect(() => {
     fetchAttendance();
-  }, [selectedDate, selectedSection]);
+  }, [fetchAttendance]);
 
   // Fetch attendance control state
   useEffect(() => {
