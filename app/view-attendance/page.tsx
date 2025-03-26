@@ -12,7 +12,7 @@ import { CalendarIcon, Power } from 'lucide-react';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import type { AttendanceData } from '@/types';
+import type { AttendanceData } from '../../types';
 import {
   Table,
   TableBody,
