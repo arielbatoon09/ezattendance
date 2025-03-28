@@ -136,7 +136,8 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 p-24">
         <Card className="w-[400px] border-white/20 bg-white/10">
           <CardHeader>
-            <CardTitle className="text-white">Loading...</CardTitle>
+            <CardTitle className="text-white">Checking Attendance System Status.</CardTitle>
+            <CardDescription className="text-white/60">Please wait while we check the status of the attendance system.</CardDescription>
           </CardHeader>
         </Card>
       </main>
