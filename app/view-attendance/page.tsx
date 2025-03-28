@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CalendarIcon, Power, Search } from 'lucide-react';
+import { CalendarIcon, Power, Search, Settings } from 'lucide-react';
+import Link from 'next/link';
 import { format, parseISO, compareAsc } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
@@ -191,10 +192,18 @@ export default function ViewAttendance() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/10 p-6">
         <div className="flex items-center gap-3">
-          <CalendarIcon className="h-8 w-8 text-white" />
-          <h1 className="text-2xl font-bold text-white">Attendance Dashboard</h1>
+          <CalendarIcon className="h-auto w-10 text-white" />
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold text-white">Attendance</h1>
+            <p className="text-sm text-white/60">View Attendance Records</p>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Link href="/settings">
+            <Button variant="outline" className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white" size="sm">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
           <Button
             variant={isAttendanceEnabled ? 'default' : 'secondary'}
             size="sm"

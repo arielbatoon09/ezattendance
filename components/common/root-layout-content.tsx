@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 export function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isViewAttendance = pathname === '/view-attendance';
+  const isViewAttendance = pathname === '/view-attendance' || pathname === '/settings';
 
   return (
     <div className="min-h-screen bg-black">

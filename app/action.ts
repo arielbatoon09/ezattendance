@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { students, attendance_records } from '@/lib/db/schema';
+import { students, attendance_records, attendance_ip_strict } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export async function findStudent(studentId: string) {
@@ -35,16 +35,32 @@ export async function findStudent(studentId: string) {
   }
 }
 
-export async function markAttendance(studentId: string) {
+export async function markAttendance(studentId: string, clientIp: string) {
   try {
     return await db.transaction(async (tx) => {
-      // heck if student exists
+      // Check if student exists
       const student = await tx.query.students.findFirst({
         where: eq(students.id, parseInt(studentId, 10)),
       });
 
       if (!student) {
         return { error: 'Student not found. Try again' };
+      }
+
+      // Check for enabled IP rules
+      const enabledIpRules = await tx.query.attendance_ip_strict.findMany({
+        where: eq(attendance_ip_strict.is_enabled, true),
+      });
+
+      // If there are enabled IP rules, verify the client IP
+      if (enabledIpRules.length > 0) {
+        const isAllowedIp = enabledIpRules.some(
+          (rule) => rule.ip_address === clientIp
+        );
+
+        if (!isAllowedIp) {
+          return { error: "You're not able to present in the unauthorized network." };
+        }
       }
 
       const now = new Date();
@@ -58,7 +74,6 @@ export async function markAttendance(studentId: string) {
           eq(attendance_records.date, today)
         )
       });
-
 
       if (existingAttendance) {
         return { error: 'You already marked attendance for today.' };

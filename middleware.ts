@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  // Check if the request is for the view-attendance page
-  if (request.nextUrl.pathname.startsWith('/view-attendance')) {
+export async function middleware(request: NextRequest) {
+  // Check if the request is for protected pages (but not API routes)
+  if ((request.nextUrl.pathname.startsWith('/view-attendance') || 
+      request.nextUrl.pathname.startsWith('/settings')) && 
+      !request.nextUrl.pathname.startsWith('/api/')) {
     const adminSession = request.cookies.get('admin_session');
 
     // If no admin session, redirect to login
@@ -16,5 +18,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/view-attendance/:path*',
+  matcher: [
+    '/view-attendance/:path*',
+    '/settings/:path*'
+  ],
 };

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
-import { markAttendance, findStudent } from './action';
+import { findStudent } from './action';
 import { useState, useEffect } from 'react';
 import { AlertCircle, Search, UserCheck } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -34,6 +34,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [isAttendanceEnabled, setIsAttendanceEnabled] = useState<boolean | null>(null);
+  const [clientIp, setClientIp] = useState<string | null>(null);
 
   // Check if attendance system is enabled
   useEffect(() => {
@@ -49,6 +50,20 @@ export default function Home() {
     };
 
     checkAttendanceStatus();
+  }, []);
+
+  useEffect(() => {
+    const getClientIp = async () => {
+      try {
+        const res = await fetch('https://ipinfo.io/json');
+        const data = await res.json();
+        setClientIp(data.ip);
+      } catch (error) {
+        console.error('Error fetching IP:', error);
+      }
+    };
+
+    getClientIp();
   }, []);
 
   const handleFindStudent = async (data: FormData) => {
@@ -100,18 +115,37 @@ export default function Home() {
   const handleMarkAttendance = async () => {
     if (!studentInfo) return;
 
+    if (!clientIp) {
+      setMessage({
+        type: 'error',
+        text: 'Unable to determine your network address. Please try again.',
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const markResult = await markAttendance(studentInfo.id);
+      const response = await fetch('/api/attendance/check-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          studentId: studentInfo.id,
+          clientIp: clientIp 
+        }),
+      });
 
-      if (markResult.error) {
-        setMessage({ type: 'error', text: markResult.error });
+      const result = await response.json();
+
+      if (result.error) {
+        setMessage({ type: 'error', text: result.error });
         return;
       }
 
       setMessage({ 
         type: 'success', 
-        text: markResult.success ?? 'Attendance marked successfully' 
+        text: result.success ?? 'Attendance marked successfully' 
       });
       reset();
       setStudentInfo(null);
