@@ -34,6 +34,13 @@ export const attendance_control = pgTable('attendance_control', {
   updated_at: timestamp('updated_at').defaultNow(),
 });
 
+export const attendance_ip_strict = pgTable('attendance_ip_strict', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  ip_address: text('ip_address'),
+  is_enabled: boolean('is_enabled').default(false),
+  created_at: timestamp('created_at').defaultNow(),
+});
+
 export type SelectStudent = typeof students.$inferSelect;
 export type SelectAttendance = typeof attendance_records.$inferSelect;
 
@@ -42,3 +49,6 @@ export type InsertAttendance = typeof attendance_records.$inferInsert;
 
 export type SelectAttendanceControl = typeof attendance_control.$inferSelect;
 export type InsertAttendanceControl = typeof attendance_control.$inferInsert;
+
+export type SelectAttendanceIpStrict = typeof attendance_ip_strict.$inferSelect;
+export type InsertAttendanceIpStrict = typeof attendance_ip_strict.$inferInsert;

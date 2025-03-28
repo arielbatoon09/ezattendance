@@ -144,7 +144,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 -mb-24">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black/95 pt-24 -mb-10">
       <Card className="w-[400px] border-white/20 bg-white/10">
         <CardHeader>
           <CardTitle className="text-white">Student Attendance</CardTitle>
@@ -155,8 +155,8 @@ export default function Home() {
         <CardContent>
           {!isAttendanceEnabled ? (
             <div className="flex items-center gap-2 rounded-lg bg-red-500/20 p-4 text-red-400">
-              <AlertCircle className="h-5 w-5" />
-              <p>Attendance system is currently disabled</p>
+              <AlertCircle className="h-14 w-14" />
+              <p>Attendance system is currently disabled. Please try again later.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit(handleFindStudent)} className="space-y-4">
@@ -182,12 +182,13 @@ export default function Home() {
                     type="submit"
                     className="w-full bg-blue-500 hover:bg-blue-600"
                     disabled={isLoading}
+                    size="lg"
                   >
                     {isLoading ? (
                       'Finding...'
                     ) : (
                       <>
-                        <Search className="mr-2 h-4 w-4" />
+                        <Search className="h-4 w-4" />
                         Find Student
                       </>
                     )}
@@ -199,12 +200,13 @@ export default function Home() {
                       onClick={handleMarkAttendance}
                       className="w-full bg-green-500 hover:bg-green-600"
                       disabled={isLoading}
+                      size="lg"
                     >
                       {isLoading ? (
                         'Processing...'
                       ) : (
                         <>
-                          <UserCheck className="mr-2 h-4 w-4" />
+                          <UserCheck className="h-4 w-4" />
                           Mark as Present
                         </>
                       )}
@@ -216,6 +218,7 @@ export default function Home() {
                       onClick={handleReset}
                       className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20"
                       disabled={isLoading}
+                      size="lg"
                     >
                       Reset
                     </Button>

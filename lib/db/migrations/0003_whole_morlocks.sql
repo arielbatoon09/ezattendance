@@ -1,0 +1,1 @@
+ALTER TABLE "attendance_ip_strict" ADD COLUMN "is_enabled" boolean DEFAULT false;

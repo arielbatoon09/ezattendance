@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db/db';
 import { students, attendance_records } from '@/lib/db/schema';
-import { eq, and, gte } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export async function findStudent(studentId: string) {
   try {
@@ -47,28 +47,28 @@ export async function markAttendance(studentId: string) {
         return { error: 'Student not found. Try again' };
       }
 
-      // Get today's date in Philippines timezone
-      const manilaTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
-      const today = new Date(manilaTime);
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
+      const options = { timeZone: "Asia/Manila" };
+      const today = now.toLocaleDateString("en-CA", options);
 
-      // Check if attendance already exists for today
+      // Check if attendance already exists for the current date
       const existingAttendance = await tx.query.attendance_records.findFirst({
         where: and(
           eq(attendance_records.student_id, studentId),
-          gte(attendance_records.created_at, today)
-        ),
+          eq(attendance_records.date, today)
+        )
       });
+
 
       if (existingAttendance) {
         return { error: 'You already marked attendance for today.' };
       }
 
-      // Insert attendance record with Manila timezone
+      // Insert attendance record with current date
       await tx.insert(attendance_records).values({
         student_id: studentId,
         status: 'present',
-        created_at: new Date(manilaTime),
+        date: today
       });
 
       return { success: 'Attendance marked successfully' };
